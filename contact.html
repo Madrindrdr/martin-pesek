@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Contact Me</title>
+  <title>Kontakt</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
 
@@ -13,31 +13,29 @@
       color: #fff;
       margin: 0;
       padding: 0;
+      width: 100%;
+    }
+
+    .container {
+      width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
     }
 
     header {
       background: #000;
       padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 1000px;
+      margin: 0 auto;
       position: relative;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-    }
-
     nav {
-      display: flex;
-      gap: 15px;
       position: absolute;
       left: 20px;
+      top: 20px;
+      display: flex;
+      gap: 15px;
     }
 
     nav a {
@@ -50,14 +48,13 @@
       text-decoration: underline;
     }
 
-    .container {
-      width: 800px;
-      margin: 40px auto;
-      padding: 20px;
+    header h1 {
+      text-align: center;
+      font-size: 1.8rem;
     }
 
     .contact-info p {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       margin: 10px 0;
     }
 
@@ -75,13 +72,16 @@
       padding: 20px;
       background: #000;
       margin-top: 40px;
+      width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
   <header>
     <nav>
-      <a href="home.html">Portfolio</a>
+      <a href="index.html">Portfolio</a>
       <a href="contact.html">Kontakt</a>
     </nav>
     <h1>Pešek</h1>
