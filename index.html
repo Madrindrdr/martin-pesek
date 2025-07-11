@@ -19,17 +19,21 @@
     }
 
     .container {
-      width: 1000px;
+      max-width: 1000px;
+      width: 100%;
       margin: 0 auto;
       padding: 40px 20px;
+      box-sizing: border-box;
     }
 
     header {
       background: #000;
       padding: 20px;
       position: relative;
-      width: 1000px;
+      max-width: 1000px;
+      width: 100%;
       margin: 0 auto;
+      box-sizing: border-box;
     }
 
     nav {
@@ -38,12 +42,14 @@
       top: 20px;
       display: flex;
       gap: 15px;
+      flex-wrap: wrap;
     }
 
     nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
+      font-size: 1rem;
     }
 
     nav a:hover {
@@ -149,9 +155,48 @@
       padding: 20px;
       background: #000;
       margin-top: 40px;
-      width: 1000px;
+      max-width: 1000px;
+      width: 100%;
       margin-left: auto;
       margin-right: auto;
+      box-sizing: border-box;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 900px) {
+      .container, header, footer {
+        max-width: 100%;
+        width: 100%;
+        padding: 20px 5px;
+      }
+      .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+    @media (max-width: 600px) {
+      .container, header, footer {
+        max-width: 100%;
+        width: 100%;
+        padding: 10px 2px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+      }
+      .video-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      nav {
+        position: static;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      nav a {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
