@@ -1,3 +1,4 @@
+<!-- index.html (with expandable video modal) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +69,7 @@
       overflow: hidden;
       border-radius: 15px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
     }
 
     .video-wrapper iframe {
@@ -78,6 +80,7 @@
       height: 100%;
       border: none;
       border-radius: 15px;
+      pointer-events: none; /* Prevents interaction until expanded */
     }
 
     .video-wrapper:hover {
@@ -94,6 +97,53 @@
       font-size: 1rem;
     }
 
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      position: relative;
+      width: 80vw;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 15px;
+      box-shadow: 0 0 40px #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content iframe {
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+      border: none;
+      pointer-events: auto;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: #fff;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+    }
     footer {
       text-align: center;
       padding: 20px;
@@ -118,28 +168,85 @@
     <h2>Portfolio</h2>
     <div class="video-grid">
       <div class="video-item">
-        <div class="video-wrapper">
-          <iframe src="https://www.youtube.com/embed/jPdJ4hhsbLk?si=4VmHZr-otYbSE4gz" allowfullscreen></iframe>
+        <div class="video-wrapper" data-video="https://www.youtube.com/embed/jPdJ4hhsbLk?autoplay=1">
+          <iframe src="https://www.youtube.com/embed/jPdJ4hhsbLk" allowfullscreen></iframe>
         </div>
         <p class="project-title">Rybova mše vánoční - střih, kamera</p>
       </div>
       <div class="video-item">
-        <div class="video-wrapper">
-          <iframe src="https://www.youtube.com/embed/tA7nG6Xgm3Q?si=G1sQbWKUDZvlH-mg" allowfullscreen></iframe>
+        <div class="video-wrapper" data-video="https://www.youtube.com/embed/tA7nG6Xgm3Q?autoplay=1">
+          <iframe src="https://www.youtube.com/embed/tA7nG6Xgm3Q" allowfullscreen></iframe>
         </div>
         <p class="project-title">ČAS - střih, kamera</p>
       </div>
       <div class="video-item">
-        <div class="video-wrapper">
-          <iframe src="https://www.youtube.com/embed/z3anqmVt1dk?si=XB2cNHgPkb8_e3MP" allowfullscreen></iframe>
+        <div class="video-wrapper" data-video="https://www.youtube.com/embed/z3anqmVt1dk?autoplay=1">
+          <iframe src="https://www.youtube.com/embed/z3anqmVt1dk" allowfullscreen></iframe>
         </div>
         <p class="project-title">Pozvánka na Scholu Pragensis 2024 - střih, kamera</p>
       </div>
+      <div class="video-item">
+        <div class="video-wrapper" data-video="https://www.youtube.com/embed/vZSJj9pkaps?autoplay=1">
+          <iframe src="https://www.youtube.com/embed/vZSJj9pkaps" allowfullscreen></iframe>
+        </div>
+        <p class="project-title">INTR LIFE - scénář, režie, střih, kamera</p>
+      </div>
+      <div class="video-item">
+        <div class="video-wrapper" data-video="https://www.youtube.com/embed/rwPX3azojHw?autoplay=1">
+          <iframe src="https://www.youtube.com/embed/rwPX3azojHw" allowfullscreen></iframe>
+        </div>
+        <p class="project-title">Maturitní ples SPŠST Panská - střih, kamera</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for expanded video -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <button class="close-modal" id="closeModal" aria-label="Zavřít">&times;</button>
+      <iframe id="modalIframe" src="" allowfullscreen></iframe>
     </div>
   </div>
 
   <footer>
     <p>&copy; Martin Pešek</p>
   </footer>
+
+  <script>
+    // Open modal on video click
+    document.querySelectorAll('.video-wrapper').forEach(wrapper => {
+      wrapper.addEventListener('click', function() {
+        const videoUrl = this.getAttribute('data-video');
+        const modal = document.getElementById('videoModal');
+        const iframe = document.getElementById('modalIframe');
+        iframe.src = videoUrl;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+      });
+    });
+
+    // Close modal
+    document.getElementById('closeModal').addEventListener('click', function() {
+      closeModal();
+    });
+
+    // Close modal on background click
+    document.getElementById('videoModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    function closeModal() {
+      const modal = document.getElementById('videoModal');
+      const iframe = document.getElementById('modalIframe');
+      modal.classList.remove('active');
+      iframe.src = '';
+      document.body.style.overflow = '';
+    }
+  </script>
 </body>
 </html>
