@@ -8,6 +8,14 @@
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
+  
+  <!-- Preload critical images for better performance -->
+  <link rel="preload" as="image" href="images/foto1.jpg">
+  <link rel="preload" as="image" href="images/foto2.jpg">
+  <link rel="preload" as="image" href="images/foto3.jpg">
+  <link rel="preload" as="image" href="images/foto4.jpg">
+  <link rel="preload" as="image" href="images/foto5.jpg">
+  <link rel="preload" as="image" href="images/foto6.jpg">
 
   <style>
     body {
@@ -111,6 +119,9 @@
       background-position: center;
       opacity: 0;
       transition: opacity 2s ease-in-out;
+      /* Optimize for performance */
+      will-change: opacity, transform;
+      transform: translateZ(0);
     }
 
     .photo-preview-background.active {
@@ -128,6 +139,9 @@
       background-position: center;
       opacity: 0;
       transition: opacity 2s ease-in-out;
+      /* Optimize for performance */
+      will-change: opacity, transform;
+      transform: translateZ(0);
     }
 
     .video-preview-background.active {
@@ -214,6 +228,9 @@
       height: 100%;
       object-fit: cover;
       border-radius: 15px;
+      /* Optimize for performance */
+      will-change: transform;
+      transform: translateZ(0);
     }
 
     .video-wrapper {
@@ -319,6 +336,9 @@
       max-height: 70vh;
       object-fit: contain;
       border-radius: 10px;
+      /* Optimize for performance */
+      will-change: transform;
+      transform: translateZ(0);
     }
 
     .photo-nav-arrow {
@@ -406,6 +426,9 @@
       height: 100%;
       object-fit: cover;
       border-radius: 3px;
+      /* Optimize for performance */
+      will-change: transform;
+      transform: translateZ(0);
     }
 
     .photo-info {
@@ -784,37 +807,37 @@
       <div class="photo-grid">
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto1.jpg">
-            <img src="images/foto1.jpg" alt="Fotografie 1">
+            <img src="images/foto1.jpg" alt="Fotografie 1" loading="lazy">
           </div>
           <p class="project-title">Festival světla</p>
         </div>
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto2.jpg">
-            <img src="images/foto2.jpg" alt="Fotografie 2">
+            <img src="images/foto2.jpg" alt="Fotografie 2" loading="lazy">
           </div>
           <p class="project-title">Produktová fotografie</p>
         </div>
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto3.jpg">
-            <img src="images/foto3.jpg" alt="Fotografie 3">
+            <img src="images/foto3.jpg" alt="Fotografie 3" loading="lazy">
           </div>
           <p class="project-title">U20 Sparta x Pardubice</p>
         </div>
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto4.jpg">
-            <img src="images/foto4.jpg" alt="Fotografie 4">
+            <img src="images/foto4.jpg" alt="Fotografie 4" loading="lazy">
           </div>
           <p class="project-title">Architektura</p>
         </div>
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto5.jpg">
-            <img src="images/foto5.jpg" alt="Fotografie 5">
+            <img src="images/foto5.jpg" alt="Fotografie 5" loading="lazy">
           </div>
           <p class="project-title">Krajina</p>
         </div>
         <div class="photo-item">
           <div class="photo-wrapper" data-photo="images/foto6.jpg">
-            <img src="images/foto6.jpg" alt="Fotografie 6">
+            <img src="images/foto6.jpg" alt="Fotografie 6" loading="lazy">
           </div>
           <p class="project-title">Volná tvorba</p>
         </div>
@@ -954,6 +977,10 @@
 
     let currentPhotoIndex = 0;
     let currentCollection = [];
+    
+    // Image preloading cache
+    const imageCache = new Map();
+    const preloadQueue = [];
 
     // Photo background slideshow
     let photoSlideshowInterval;
@@ -970,6 +997,55 @@
       'https://img.youtube.com/vi/rwPX3azojHw/maxresdefault.jpg'
       // Vynecháváme z3anqmVt1dk - pozvánka na Scholu nemá kvalitní náhledový obrázek
     ];
+
+    // Preload image function
+    function preloadImage(src) {
+      return new Promise((resolve, reject) => {
+        if (imageCache.has(src)) {
+          resolve(imageCache.get(src));
+          return;
+        }
+        
+        const img = new Image();
+        img.onload = () => {
+          imageCache.set(src, img);
+          resolve(img);
+        };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    // Preload images in background with priority queue
+    function startImagePreloading() {
+      const preloadImages = async () => {
+        // Preload slideshow images first (higher priority)
+        const slideshowPromises = photoBackgroundPhotos.slice(0, 10).map(src => 
+          preloadImage(src).catch(err => console.warn('Failed to preload:', src))
+        );
+        
+        // Wait for initial slideshow images
+        await Promise.allSettled(slideshowPromises);
+        
+        // Then preload remaining images in batches
+        const remainingImages = photoBackgroundPhotos.slice(10);
+        const batchSize = 3;
+        
+        for (let i = 0; i < remainingImages.length; i += batchSize) {
+          const batch = remainingImages.slice(i, i + batchSize);
+          const batchPromises = batch.map(src => 
+            preloadImage(src).catch(err => console.warn('Failed to preload:', src))
+          );
+          
+          await Promise.allSettled(batchPromises);
+          // Small delay between batches to not overwhelm the browser
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      };
+      
+      // Start preloading after a short delay to not block initial page load
+      setTimeout(preloadImages, 500);
+    }
 
     // Collect all photos from all collections for photo background
     function initPhotoSlideshow() {
@@ -996,6 +1072,9 @@
         
         // Start slideshow
         photoSlideshowInterval = setInterval(switchPhotoBackground, 4000); // Change every 4 seconds
+        
+        // Start background image preloading
+        startImagePreloading();
       }
     }
 
@@ -1136,14 +1215,29 @@
     function openPhotoModal(startIndex) {
       currentPhotoIndex = startIndex;
       
-      // Create thumbnails from current collection
+      // Create thumbnails from current collection with optimized loading
       const thumbnailsContainer = document.getElementById('photoThumbnails');
       thumbnailsContainer.innerHTML = '';
       
       currentCollection.forEach((photo, index) => {
         const thumbnail = document.createElement('div');
         thumbnail.className = `photo-thumbnail ${index === startIndex ? 'active' : ''}`;
-        thumbnail.innerHTML = `<img src="${photo.src}" alt="${photo.caption}">`;
+        
+        // Create img element with lazy loading for thumbnails
+        const img = document.createElement('img');
+        img.alt = photo.caption;
+        img.loading = 'lazy';
+        
+        // Load thumbnail immediately if it's the active one or within first 3
+        if (index === startIndex || index < 3) {
+          img.src = photo.src;
+        } else {
+          // Use data-src for lazy loading
+          img.dataset.src = photo.src;
+          img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMzMzIi8+Cjwvc3ZnPgo='; // Placeholder
+        }
+        
+        thumbnail.appendChild(img);
         
         thumbnail.addEventListener('click', () => {
           showPhoto(index);
@@ -1152,10 +1246,50 @@
         thumbnailsContainer.appendChild(thumbnail);
       });
 
+      // Lazy load thumbnails using Intersection Observer
+      const thumbnailObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target.querySelector('img[data-src]');
+            if (img) {
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+              thumbnailObserver.unobserve(entry.target);
+            }
+          }
+        });
+      }, { rootMargin: '50px' });
+
+      // Observe all thumbnails for lazy loading
+      document.querySelectorAll('.photo-thumbnail').forEach(thumbnail => {
+        const img = thumbnail.querySelector('img[data-src]');
+        if (img) {
+          thumbnailObserver.observe(thumbnail);
+        }
+      });
+
       showPhoto(startIndex);
       
       document.getElementById('photoModal').classList.add('active');
       document.body.style.overflow = 'hidden';
+      
+      // Preload next few images in collection for smooth navigation
+      preloadNearbyImages(startIndex);
+    }
+
+    // Preload nearby images for smooth navigation
+    function preloadNearbyImages(currentIndex) {
+      const preloadRange = 2; // Preload 2 images before and after current
+      const startIndex = Math.max(0, currentIndex - preloadRange);
+      const endIndex = Math.min(currentCollection.length - 1, currentIndex + preloadRange);
+      
+      for (let i = startIndex; i <= endIndex; i++) {
+        if (i !== currentIndex) {
+          preloadImage(currentCollection[i].src).catch(err => 
+            console.warn('Failed to preload nearby image:', currentCollection[i].src)
+          );
+        }
+      }
     }
 
     function showPhoto(index) {
@@ -1185,6 +1319,9 @@
           inline: 'center' 
         });
       }
+      
+      // Preload nearby images for smooth navigation
+      preloadNearbyImages(index);
     }
 
     function showPrevPhoto() {
