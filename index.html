@@ -924,11 +924,11 @@
         title: 'Ferrari',
         photos: [
           { src: "images/foto2.jpg", caption: "LEGO Ferrari Daytona SP3" },
-          { src: "images/ferrari/ferrari1.jpg", caption: "LEGO Ferrari Daytona SP3" },
-          { src: "images/ferrari/ferrari2.jpg", caption: "LEGO Ferrari Daytona SP3" },
-          { src: "images/ferrari/ferrari3.jpg", caption: "LEGO Ferrari Daytona SP3" },
-          { src: "images/ferrari/ferrari4.jpg", caption: "LEGO Ferrari Daytona SP3" },
-          { src: "images/ferrari/ferrari5.jpg", caption: "LEGO Ferrari Daytona SP3" },
+          { src: "images/Ferrari/ferrari1.jpg", caption: "LEGO Ferrari Daytona SP3" },
+          { src: "images/Ferrari/ferrari2.jpg", caption: "LEGO Ferrari Daytona SP3" },
+          { src: "images/Ferrari/ferrari3.jpg", caption: "LEGO Ferrari Daytona SP3" },
+          { src: "images/Ferrari/ferrari4.jpg", caption: "LEGO Ferrari Daytona SP3" },
+          { src: "images/Ferrari/ferrari5.jpg", caption: "LEGO Ferrari Daytona SP3" },
         ]
       },
       'foto3': {
@@ -1520,11 +1520,11 @@
             console.error(`✗ ${index + 1}. ${photo.caption} - FAILED: ${photo.src}`);
             
             // Try alternative paths for debugging
-            if (photo.src.includes('ferrari')) {
+            if (photo.src.includes('Ferrari') || photo.src.includes('ferrari')) {
               console.log('Testing alternative Ferrari paths...');
               
               // Test with different case
-              const altSrc1 = photo.src.replace('ferrari', 'Ferrari');
+              const altSrc1 = photo.src.replace('Ferrari', 'ferrari').replace('ferrari', 'Ferrari');
               const altSrc2 = photo.src.replace('.jpg', '.JPG');
               
               const testAlt1 = new Image();
