@@ -60,13 +60,67 @@
       font-size: 1.8rem;
     }
 
+    header h1 a {
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    header h1 a:hover {
+      color: #ccc;
+    }
+
+    .contact-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      margin-top: 40px;
+      align-items: start;
+    }
+
+    .about-section {
+      text-align: center;
+    }
+
+    .profile-photo {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 30px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .profile-photo:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.02);
+    }
+
+    .about-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      text-align: left;
+      color: #ccc;
+    }
+
+    .about-text h2 {
+      color: #fff;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .about-text p {
+      margin-bottom: 15px;
+    }
+
     .contact-info {
       display: flex;
       flex-direction: column;
       gap: 20px;
       align-items: center;
       text-align: center;
-      margin-top: 40px;
     }
 
     .contact-info p {
@@ -112,6 +166,15 @@
         max-width: 100%;
         padding: 30px 15px;
       }
+
+      .contact-content {
+        gap: 40px;
+      }
+
+      .profile-photo {
+        width: 200px;
+        height: 200px;
+      }
     }
 
     @media (max-width: 900px) {
@@ -119,6 +182,16 @@
         max-width: 100%;
         width: 100%;
         padding: 20px 10px;
+      }
+      
+      .contact-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .profile-photo {
+        width: 180px;
+        height: 180px;
       }
       
       /* Navigation responsive */
@@ -139,6 +212,14 @@
         width: 100%;
         max-width: 400px;
         font-size: 1.1rem;
+      }
+
+      .about-text {
+        font-size: 1rem;
+      }
+
+      .about-text h2 {
+        font-size: 1.6rem;
       }
     }
 
@@ -168,9 +249,19 @@
         font-size: 0.9rem;
       }
 
+      .contact-content {
+        gap: 30px;
+        margin-top: 20px;
+      }
+
+      .profile-photo {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 20px;
+      }
+
       .contact-info {
         gap: 15px;
-        margin-top: 20px;
       }
 
       .contact-info p {
@@ -178,6 +269,15 @@
         padding: 12px 15px;
         min-width: auto;
         width: 100%;
+      }
+
+      .about-text {
+        font-size: 0.95rem;
+      }
+
+      .about-text h2 {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
       }
     }
 
@@ -194,9 +294,22 @@
         font-size: 0.8rem;
       }
 
+      .profile-photo {
+        width: 120px;
+        height: 120px;
+      }
+
       .contact-info p {
         font-size: 0.9rem;
         padding: 10px 12px;
+      }
+
+      .about-text {
+        font-size: 0.9rem;
+      }
+
+      .about-text h2 {
+        font-size: 1.2rem;
       }
     }
 
@@ -224,13 +337,33 @@
       <a href="index.html">Portfolio</a>
       <a href="contact.html">Kontakt</a>
     </nav>
-    <h1>Pešek</h1>
+    <h1><a href="index.html">Pešek</a></h1>
   </header>
 
-  <div class="container contact-info">
-    <p>Email: <a href="mailto:marpes2222@gmail.com">marpes2222@gmail.com</a></p>
-    <p>Instagram: <a href="https://instagram.com/madrtin__" target="_blank">@madrtin__</a></p>
-    <p>Phone: <a href="tel:+420776667023">+420 776 667 023</a></p>
+  <div class="container">
+    <div class="contact-content">
+      <!-- O mně sekce -->
+      <div class="about-section">
+        <img src="images/profile.jpg" alt="Martin Pešek" class="profile-photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iMjUwIiBmaWxsPSIjMzMzIiByeD0iMTI1Ii8+Cjx0ZXh0IHg9IjEyNSIgeT0iMTM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iYXJpYWwiPkZvdG8gUHJvZmlsPC90ZXh0Pgo8L3N2Zz4K';">
+        
+        <div class="about-text">
+          <h2>O mně</h2>
+          <p>Jsem student a nadšenec do videa a fotografie. Primárně se věnuji produkci a postprodukci videa, přičemž se specializuji na color grading. Pracuji v DaVinci Resolve i v Adobe Premiere Pro.</p>
+          
+          <p>Mám zkušenosti s natáčením a střihem záznamů z akcí i pár krátkých filmů. Příležitostně se věnuji také fotografii – nejčastěji fotím na různých akcích, nebo jen tak pro radost.</p>
+          
+          <p>Aktuálně studuji na SPŠST Panská v Praze, obor Audiovizuální technika.</p>
+        </div>
+      </div>
+
+      <!-- Kontaktní informace -->
+      <div class="contact-info">
+        <h2 style="color: #fff; font-size: 1.8rem; margin-bottom: 30px; text-align: center;">Kontakt</h2>
+        <p>Email: <a href="mailto:marpes2222@gmail.com">marpes2222@gmail.com</a></p>
+        <p>Instagram: <a href="https://instagram.com/madrtin__" target="_blank">@madrtin__</a></p>
+        <p>Phone: <a href="tel:+420776667023">+420 776 667 023</a></p>
+      </div>
+    </div>
   </div>
 
   <footer>
