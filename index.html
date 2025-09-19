@@ -458,58 +458,130 @@
   </footer>
 
   <script>
-    // --- Load videos and photos from localStorage ---
-    let videoData = [];
-    let photoCollections = {};
-    let currentPhotoIndex = 0;
-    let currentCollection = [];
+// --- Load photo galleries from gallery.json ---
+let manifest = { galleries: [], standalone: [] };
+let currentPhotoIndex = 0;
+let currentCollection = [];
+let photoSlideshowInterval;
+let currentPhotoBackground = 1;
+const photoBackgroundPhotos = [];
 
-    // For background slideshows
-    let photoSlideshowInterval;
-    let currentPhotoBackground = 1;
-    const photoBackgroundPhotos = [];
-    let videoSlideshowInterval;
-    let currentVideoBackground = 1;
-    const videoBackgroundThumbnails = [];
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadManifest();
+  renderPhotoGallery();
+  initPhotoSlideshow();
+  renderVideoGallery(); // keep your video logic if you want
+  initVideoSlideshow(); // keep your video logic if you want
+});
 
-    function loadData() {
-      // Load videos
-      videoData = JSON.parse(localStorage.getItem('videos') || '[]');
-      // Load photo collections
-      photoCollections = JSON.parse(localStorage.getItem('photoCollections') || '{}');
-    }
+async function loadManifest() {
+  try {
+    const res = await fetch('gallery.json?ts=' + Date.now());
+    manifest = await res.json();
+  } catch (e) {
+    console.error('Failed to load gallery.json', e);
+    manifest = { galleries: [], standalone: [] };
+  }
+}
 
-    // --- Render Video Gallery ---
-    function renderVideoGallery() {
-      const grid = document.getElementById('videoGrid');
-      grid.innerHTML = '';
-      if (videoData.length === 0) {
-        grid.innerHTML = '<p style="color:#ccc;">No videos yet. Add some in the admin panel.</p>';
-        return;
+function renderPhotoGallery() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+
+  const hasGalleries = manifest.galleries && manifest.galleries.length > 0;
+  const hasStandalone = manifest.standalone && manifest.standalone.length > 0;
+
+  if (!hasGalleries && !hasStandalone) {
+    grid.innerHTML = '<p style="color:#ccc;">No photos yet. Add images to the images/ folder.</p>';
+    return;
+  }
+
+  // Galleries (use first photo as cover)
+  manifest.galleries.forEach(gal => {
+    const cover = gal.photos[0];
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `
+      <div class="photo-wrapper" data-collection="${gal.key}">
+        <img src="${cover}" alt="${gal.title}">
+      </div>
+      <p class="project-title">${gal.title}</p>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Standalone photos
+  manifest.standalone.forEach(ph => {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `
+      <div class="photo-wrapper" data-standalone="${ph.src}">
+        <img src="${ph.src}" alt="${ph.caption || ''}">
+      </div>
+      <p class="project-title">${ph.caption || ''}</p>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Click behavior
+  document.querySelectorAll('.photo-wrapper').forEach(wrapper => {
+    wrapper.addEventListener('click', function() {
+      const collectionKey = this.getAttribute('data-collection');
+      const standaloneSrc = this.getAttribute('data-standalone');
+
+      if (collectionKey) {
+        const gal = manifest.galleries.find(g => g.key === collectionKey);
+        if (gal && gal.photos.length) {
+          currentCollection = gal.photos.map(src => ({ src, caption: '' }));
+          openPhotoModal(0);
+        }
+      } else if (standaloneSrc) {
+        currentCollection = [{ src: standaloneSrc, caption: '' }];
+        openPhotoModal(0);
       }
-      videoData.forEach((v, i) => {
-        const item = document.createElement('div');
-        item.className = 'video-item';
-        item.innerHTML = `
-          <div class="video-wrapper" data-video="${v.link}">
-            <iframe src="${v.link.replace('?autoplay=1','')}" allowfullscreen></iframe>
-          </div>
-          <p class="project-title">${v.title}</p>
-        `;
-        grid.appendChild(item);
-      });
-      // Add click listeners for modal
-      document.querySelectorAll('.video-wrapper').forEach(wrapper => {
-        wrapper.addEventListener('click', function() {
-          const videoUrl = this.getAttribute('data-video');
-          const modal = document.getElementById('videoModal');
-          const iframe = document.getElementById('modalIframe');
-          iframe.src = videoUrl;
-          modal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        });
-      });
-    }
+    });
+  });
+}
+
+function initPhotoSlideshow() {
+  photoBackgroundPhotos.length = 0;
+  (manifest.galleries || []).forEach(gal => {
+    gal.photos.forEach((src, idx) => { if (idx > 0) photoBackgroundPhotos.push(src); });
+  });
+  (manifest.standalone || []).forEach(ph => photoBackgroundPhotos.push(ph.src));
+
+  if (photoBackgroundPhotos.length > 0) {
+    const bg1 = document.getElementById('photo-bg-1');
+    const bg2 = document.getElementById('photo-bg-2');
+    const randomIndex = Math.floor(Math.random() * photoBackgroundPhotos.length);
+    bg1.style.backgroundImage = `url('${photoBackgroundPhotos[randomIndex]}')`;
+    bg1.classList.add('active');
+    if (photoSlideshowInterval) clearInterval(photoSlideshowInterval);
+    photoSlideshowInterval = setInterval(switchPhotoBackground, 4000);
+  }
+}
+
+function switchPhotoBackground() {
+  if (photoBackgroundPhotos.length === 0) return;
+  const bg1 = document.getElementById('photo-bg-1');
+  const bg2 = document.getElementById('photo-bg-2');
+  const randomIndex = Math.floor(Math.random() * photoBackgroundPhotos.length);
+  const newImage = photoBackgroundPhotos[randomIndex];
+  if (currentPhotoBackground === 1) {
+    bg2.style.backgroundImage = `url('${newImage}')`;
+    bg2.classList.add('active');
+    bg1.classList.remove('active');
+    currentPhotoBackground = 2;
+  } else {
+    bg1.style.backgroundImage = `url('${newImage}')`;
+    bg1.classList.add('active');
+    bg2.classList.remove('active');
+    currentPhotoBackground = 1;
+  }
+}
+
+// --- Modal logic (keep your existing code for openPhotoModal, showPhoto, etc.) ---
+
 
     // --- Render Photo Gallery ---
     function renderPhotoGallery() {
