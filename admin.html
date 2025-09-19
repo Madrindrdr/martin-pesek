@@ -1,0 +1,167 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Special Gothic Expanded One', sans-serif; background: #111; color: #fff; margin: 0; padding: 0; }
+    .container { max-width: 800px; margin: 40px auto; background: #222; border-radius: 10px; padding: 30px; }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 15px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: none; }
+    button { margin-top: 15px; padding: 10px 20px; border-radius: 5px; border: none; background: #444; color: #fff; cursor: pointer; }
+    button:hover { background: #666; }
+    .section { margin-bottom: 40px; }
+    .item-list { margin-top: 10px; }
+    .item { background: #333; padding: 10px; border-radius: 5px; margin-bottom: 8px; }
+    .item-actions { float: right; }
+    .hidden { display: none; }
+    .logout { float: right; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <button class="logout hidden" id="logoutBtn">Logout</button>
+    <div id="loginSection">
+      <label for="adminPassword">Enter password:</label>
+      <input type="password" id="adminPassword">
+      <button onclick="login()">Login</button>
+      <p id="loginError" style="color: red;"></p>
+    </div>
+    <div id="adminContent" class="hidden">
+      <!-- Video Section -->
+      <div class="section">
+        <h2>Videos</h2>
+        <form id="videoForm">
+          <label>Title:</label>
+          <input type="text" id="videoTitle" required>
+          <label>YouTube Embed Link:</label>
+          <input type="text" id="videoLink" required>
+          <button type="submit">Add Video</button>
+        </form>
+        <div class="item-list" id="videoList"></div>
+      </div>
+      <!-- Photo Section -->
+      <div class="section">
+        <h2>Photo Collections</h2>
+        <form id="photoForm">
+          <label>Collection Key (e.g. foto1):</label>
+          <input type="text" id="photoKey" required>
+          <label>Collection Title:</label>
+          <input type="text" id="photoTitle" required>
+          <label>Main Photo URL:</label>
+          <input type="text" id="mainPhotoUrl" required>
+          <label>Gallery Images (JSON: [{src:"...",caption:"..."}]):</label>
+          <textarea id="galleryImages" rows="4" required></textarea>
+          <button type="submit">Add/Update Collection</button>
+        </form>
+        <div class="item-list" id="photoList"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Simple password (change this!)
+    const ADMIN_PASSWORD = "1234";
+
+    // --- Login Logic ---
+    function login() {
+      const pw = document.getElementById('adminPassword').value;
+      if (pw === ADMIN_PASSWORD) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('adminContent').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        loadVideos();
+        loadPhotos();
+      } else {
+        document.getElementById('loginError').textContent = "Wrong password!";
+      }
+    }
+    document.getElementById('logoutBtn').onclick = function() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('adminContent').classList.add('hidden');
+      document.getElementById('logoutBtn').classList.add('hidden');
+      document.getElementById('adminPassword').value = '';
+    };
+
+    // --- Video CRUD ---
+    function loadVideos() {
+      const videos = JSON.parse(localStorage.getItem('videos') || '[]');
+      const list = document.getElementById('videoList');
+      list.innerHTML = '';
+      videos.forEach((v, i) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<b>${v.title}</b> <span class="item-actions">
+          <button onclick="deleteVideo(${i})">Delete</button>
+        </span><br><small>${v.link}</small>`;
+        list.appendChild(div);
+      });
+    }
+    document.getElementById('videoForm').onsubmit = function(e) {
+      e.preventDefault();
+      const title = document.getElementById('videoTitle').value;
+      const link = document.getElementById('videoLink').value;
+      const videos = JSON.parse(localStorage.getItem('videos') || '[]');
+      videos.push({ title, link });
+      localStorage.setItem('videos', JSON.stringify(videos));
+      loadVideos();
+      this.reset();
+    };
+    function deleteVideo(idx) {
+      const videos = JSON.parse(localStorage.getItem('videos') || '[]');
+      videos.splice(idx, 1);
+      localStorage.setItem('videos', JSON.stringify(videos));
+      loadVideos();
+    }
+
+    // --- Photo CRUD ---
+    function loadPhotos() {
+      const photos = JSON.parse(localStorage.getItem('photoCollections') || '{}');
+      const list = document.getElementById('photoList');
+      list.innerHTML = '';
+      Object.keys(photos).forEach(key => {
+        const col = photos[key];
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<b>${key}:</b> ${col.title} <span class="item-actions">
+          <button onclick="deletePhoto('${key}')">Delete</button>
+        </span><br><small>Main: ${col.photos[0].src}</small>`;
+        list.appendChild(div);
+      });
+    }
+    document.getElementById('photoForm').onsubmit = function(e) {
+      e.preventDefault();
+      const key = document.getElementById('photoKey').value;
+      const title = document.getElementById('photoTitle').value;
+      const mainPhoto = document.getElementById('mainPhotoUrl').value;
+      let gallery;
+      try {
+        gallery = JSON.parse(document.getElementById('galleryImages').value);
+      } catch {
+        alert("Gallery Images must be valid JSON!");
+        return;
+      }
+      if (!Array.isArray(gallery) || gallery.length === 0) {
+        alert("Gallery Images must be a non-empty array!");
+        return;
+      }
+      // Ensure first photo is main
+      gallery.unshift({ src: mainPhoto, caption: title });
+      const photos = JSON.parse(localStorage.getItem('photoCollections') || '{}');
+      photos[key] = { title, photos: gallery };
+      localStorage.setItem('photoCollections', JSON.stringify(photos));
+      loadPhotos();
+      this.reset();
+    };
+    function deletePhoto(key) {
+      const photos = JSON.parse(localStorage.getItem('photoCollections') || '{}');
+      delete photos[key];
+      localStorage.setItem('photoCollections', JSON.stringify(photos));
+      loadPhotos();
+    }
+  </script>
+</body>
+</html>
